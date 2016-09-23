@@ -76,12 +76,9 @@ void setup()
   SeeedOled.init();  //initialze SEEED OLED display
 //  DDRB|=0x21;        
 //  PORTB |= 0x21;
-
-
 }
 
 void setDisplayToOriginalState(char testCase)
-
 {
   delay(5000);
   SeeedOled.init();                       //initialze SEEED OLED display
@@ -90,7 +87,7 @@ void setDisplayToOriginalState(char testCase)
   SeeedOled.setNormalDisplay();           // Non-inverted Display 
   SeeedOled.setPageMode();                // Page mode to start with
   SeeedOled.setTextXY(2,0);               // 0 Page, 0th Column  
-  SeeedOled.putString("Test Case ");
+  SeeedOled.putString("Test Case Find ");
   SeeedOled.putNumber(testCase);
   SeeedOled.setTextXY(3,0);
   SeeedOled.putString("Test Case ");
@@ -102,17 +99,12 @@ void setDisplayToOriginalState(char testCase)
   SeeedOled.putString("Test Case ");
   SeeedOled.putNumber(testCase);
   delay(2000);
-  
-
-
 }
 
 
 void loop()
 {
-
   setDisplayToOriginalState(1);
-
   SeeedOled.clearDisplay();          //clear the screen and set start position to top left corner
   SeeedOled.setNormalDisplay();      //Set display to normal mode (i.e non-inverse mode)
   SeeedOled.setPageMode();           //Set addressing mode to Page Mode
@@ -142,8 +134,6 @@ void loop()
   SeeedOled.setHorizontalMode();      //Set addressing mode to Horizontal Mode
   SeeedOled.putString("!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");  //Print String (ASCII 32 - 126 )
 
-
-
   setDisplayToOriginalState(4);
   
   SeeedOled.clearDisplay();               // clear the screen and set start position to top left corner
@@ -161,7 +151,7 @@ void loop()
   SeeedOled.drawBitmap(SeeedLogo,1024);   // 1024 = 128 Pixels * 64 Pixels / 8
   SeeedOled.setHorizontalScrollProperties(Scroll_Left,4,7,Scroll_5Frames); //Set Scrolling properties to Scroll Left
   SeeedOled.activateScroll();             // Activate Scrolling
-  delay(5000);
+  delay(4000);
   
   setDisplayToOriginalState(7);
 
@@ -170,7 +160,5 @@ void loop()
   SeeedOled.setHorizontalScrollProperties(Scroll_Right,4,7,Scroll_5Frames);  //Set the properties of Horizontal Scrool
   SeeedOled.activateScroll();             // Activate Scroll
   delay(5000);  
-
-  
 }
 
