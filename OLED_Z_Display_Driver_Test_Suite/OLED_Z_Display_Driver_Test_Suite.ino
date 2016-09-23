@@ -90,13 +90,13 @@ void setDisplayToOriginalState(char testCase)
   SeeedOled.putString("Test Case Find ");
   SeeedOled.putNumber(testCase);
   SeeedOled.setTextXY(3,0);
-  SeeedOled.putString("Test Case ");
+  SeeedOled.putString("Test Case Cool");
   SeeedOled.putNumber(testCase);
   SeeedOled.setTextXY(4,0);
-  SeeedOled.putString("Test Case ");
+  SeeedOled.putString("Test Case :");
   SeeedOled.putNumber(testCase);
   SeeedOled.setTextXY(5,0);
-  SeeedOled.putString("Test Case ");
+  SeeedOled.putString("Test Case LEN:");
   SeeedOled.putNumber(testCase);
   delay(2000);
 }

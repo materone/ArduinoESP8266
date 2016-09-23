@@ -168,7 +168,8 @@ void I2Cscan()
 
     for (uint8_t s = 0; s < speeds ; s++)
     {
-      TWBR = (F_CPU/(speed[s]*1000) - 16)/2;
+      //TWBR = (F_CPU/(speed[s]*1000) - 16)/2;
+      Wire.setClock(speed[s]*1000);
       Wire.beginTransmission (address);
       found[s] = (Wire.endTransmission () == 0);
       fnd |= found[s];
