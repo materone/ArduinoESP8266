@@ -214,7 +214,7 @@ void bmpdraw(File f, uint8_t x, uint8_t y, uint8_t feed) {
     }
   }
   // TFT_CS_CLR;
-  // TFT_WriteIndex(0x3A);   //set color 18 bit or 16bit
+  // TFT_WriteIndex(0x3A);   //set color 18 bit or 16bitesp
   // TFT_WriteData(0x55);    //55 -> 16 66->18
   // myGLCD.LCD_Write_COM_DATA(0x3A, 0x55);
   // TFT_DrawFont_GBK16(0, 0, BLUE, YELLOW, (u8 *)path0);
