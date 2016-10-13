@@ -178,12 +178,12 @@ void bmpdraw(File f, uint8_t x, uint8_t y, uint8_t feed) {
       color = sdbuffer[buffidx + 2] >> 3;                 // red
       color = color << 6 | (sdbuffer[buffidx + 1] >> 2);  // green
       color = color << 5 | (sdbuffer[buffidx + 0] >> 3);  // blue
-      buffidx += 3;
 
       //    SPI.transfer(p );
       //    SPI.transfer(g ); //&0xFC
       //    SPI.transfer(b );
       myGLCD.setPixel(color);
+      buffidx += 3;
     }
     // pad last bit,for bmp must 4 * byte per line
     if (feed) {
@@ -218,11 +218,14 @@ void bmpdraw(File f, uint8_t x, uint8_t y, uint8_t feed) {
   // TFT_WriteData(0x55);    //55 -> 16 66->18
   // myGLCD.LCD_Write_COM_DATA(0x3A, 0x55);
   // TFT_DrawFont_GBK16(0, 0, BLUE, YELLOW, (u8 *)path0);
-
-  delay(5000);
+  myGLCD.setBackColor(VGA_GRAY);
+  myGLCD.setColor(VGA_RED);
+  myGLCD.print(String(f.name()),0,0);
+  myGLCD.print(String(millis()-time),0,myGLCD.getFontYsize() + 2);
   Serial.println("Use ");
   Serial.println(millis() - time);
   Serial.println(" ms");
+  delay(5000);
 }
 
 void bmpdraw1(File f, int x, int y, int dir) {
