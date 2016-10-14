@@ -149,15 +149,17 @@ void bmpdraw(File f, uint8_t x, uint8_t y, uint8_t feed) {
 
   uint32_t time = millis();
 
-  SD_CS_OFF;
-  cbi(myGLCD.P_CS, myGLCD.B_CS);
-  myGLCD.setXY(x, y, __Gnbmp_width + x - 1, __Gnbmp_height + y - 1);
-  sbi(myGLCD.P_CS, myGLCD.B_CS);
+  
   // TFT_WriteIndex(0x2c);
 
   // myGLCD.LCD_Write_COM(0x2C);
   size = (__Gnbmp_width << 1) + __Gnbmp_width + feed;
-  for (i = 0; i < __Gnbmp_height; i++) {
+  uint16_t w = __Gnbmp_width + x - 1;
+  for (i = __Gnbmp_height; i > 0; i--) {
+    SD_CS_OFF;
+    cbi(myGLCD.P_CS, myGLCD.B_CS);
+    myGLCD.setXY(x, i - y - 1, w, i - y - 1);
+    sbi(myGLCD.P_CS, myGLCD.B_CS);
     buffidx = 0;
     pixcount = 0;
     sbi(myGLCD.P_CS, myGLCD.B_CS);
