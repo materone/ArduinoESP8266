@@ -134,7 +134,8 @@ void bmpdraw(File f, uint8_t x, uint8_t y, uint8_t feed) {
   //  uint8_t temp[4];
 
   uint8_t sdbuffer[BUFFPIXEL_X3];  // 3 * pixels to buffer
-  uint16_t buffidx = BUFFPIXEL_X3;
+  uint16_t buffidx = BUFFPIXEL_X3,size = 0,pixcount=0;
+  uint8_t row[__Gnbmp_width<<1];
   // SD_CS_OFF;
   // cbi(myGLCD.P_CS, myGLCD.B_CS);
   // myGLCD.LCD_Write_COM_DATA(0x3A, 0x55);
@@ -155,9 +156,52 @@ void bmpdraw(File f, uint8_t x, uint8_t y, uint8_t feed) {
   // TFT_WriteIndex(0x2c);
 
   // myGLCD.LCD_Write_COM(0x2C);
+  size = (__Gnbmp_width << 1) + __Gnbmp_width + feed;
+  for (i = 0; i < __Gnbmp_height; i++) {
+    buffidx = 0;
+    pixcount = 0;
+    sbi(myGLCD.P_CS, myGLCD.B_CS);
+    SD_CS_ON;
+    f.read(sdbuffer, size);
+    // TFT_CS_CLR;
+    SD_CS_OFF;
+    cbi(myGLCD.P_CS, myGLCD.B_CS);
+
+    for (j = 0; j < __Gnbmp_width; j++) {
+      // b = sdbuffer[buffidx++];     // blue
+      // g = sdbuffer[buffidx++];     // green
+      // p = sdbuffer[buffidx++];     // red
+      // color = sdbuffer[buffidx + 2] >> 3;                 // red
+      // color = color << 6 | (sdbuffer[buffidx + 1] >> 2);  // green
+      // color = color << 5 | (sdbuffer[buffidx + 0] >> 3);  // blue
+      row[pixcount++]  = sdbuffer[buffidx + 2] & 0xF8 | (sdbuffer[buffidx + 1] >> 5);
+      row[pixcount++]  = (sdbuffer[buffidx + 1] << 3) & 0xE0 | sdbuffer[buffidx + 0]  >> 3;
+      //    SPI.transfer(p );
+      //    SPI.transfer(g ); //&0xFC
+      //    SPI.transfer(b );
+      // myGLCD.setPixel(color);
+      buffidx += 3;
+    }
+    sbi ( myGLCD.P_RS, myGLCD.B_RS );
+    SPI.writeBytes(row,pixcount);
+    // pad last bit,for bmp must 4 * byte per line
+    // if (feed!=0) {
+    //   // TFT_CS_SET;
+    //   // bmpFile.seek(bmpFile.position() + pad);
+    //   sbi(myGLCD.P_CS, myGLCD.B_CS);
+    //   SD_CS_ON;
+    //   f.seek(f.position() + feed);
+    //   // f_read(f,temp,pad,&rc);
+    //   // TFT_CS_CLR;
+    //   cbi(myGLCD.P_CS, myGLCD.B_CS);
+    //   SD_CS_OFF;
+    // } 
+  }
+
 
   // TFT_CS_CLR;
   // TFT_RS_SET;
+  /*
   for (i = 0; i < __Gnbmp_height; i++) {
     for (j = 0; j < __Gnbmp_width; j++) {
       // read more pixels
@@ -187,7 +231,7 @@ void bmpdraw(File f, uint8_t x, uint8_t y, uint8_t feed) {
     }
     // pad last bit,for bmp must 4 * byte per line
     if (feed) {
-      uint8_t pad = __Gnbmp_width % 4;
+      uint8_t pad = feed;//__Gnbmp_width % 4;
       if (buffidx >= BUFFPIXEL_X3) {
         // TFT_CS_SET;
         // bmpFile.seek(bmpFile.position() + pad);
@@ -213,18 +257,18 @@ void bmpdraw(File f, uint8_t x, uint8_t y, uint8_t feed) {
       }
     }
   }
+  */
   // TFT_CS_CLR;
   // TFT_WriteIndex(0x3A);   //set color 18 bit or 16bitesp
   // TFT_WriteData(0x55);    //55 -> 16 66->18
   // myGLCD.LCD_Write_COM_DATA(0x3A, 0x55);
   // TFT_DrawFont_GBK16(0, 0, BLUE, YELLOW, (u8 *)path0);
   myGLCD.setBackColor(VGA_GRAY);
-  myGLCD.setColor(VGA_RED);
+  myGLCD.setColor(VGA_YELLOW);
   myGLCD.print(String(f.name()),0,0);
-  myGLCD.print(String(millis()-time),0,myGLCD.getFontYsize() + 2);
-  Serial.println("Use ");
-  Serial.println(millis() - time);
-  Serial.println(" ms");
+  myGLCD.print(String(__Gnbmp_width)+"*"+String(__Gnbmp_height),0,myGLCD.getFontYsize() + 2);
+  myGLCD.print(String(millis()-time),0,2 * myGLCD.getFontYsize() + 2);
+  myGLCD.print(String(feed),0,3 * myGLCD.getFontYsize() + 2);
   delay(5000);
 }
 
@@ -430,11 +474,13 @@ void loop() {
       ;
     x = (240 - __Gnbmp_width) / 2;
     if (__Gnbmp_height < 320) y = (320 - __Gnbmp_height) / 2;
-    if (__Gnbmp_width % 4 == 0) {
-      feed = 0;
-    } else {
-      feed = 1;
-    }
+    // if (__Gnbmp_width % 4 == 0) {
+    //   feed = 0;
+    // } else {
+    //   feed = 1;
+    // }
+    // skip = 4 - ((m_iImageWidth * m_iBitsPerPixel)>>3) & 3
+    feed = 4 - ((__Gnbmp_width * 24) >> 3) & 3;
     bmpdraw(bmpFile, x, y, feed);
     bmpFile.close();
 
