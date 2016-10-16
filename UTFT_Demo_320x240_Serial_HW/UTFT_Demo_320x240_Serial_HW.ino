@@ -128,7 +128,7 @@ void searchDirectory() {
 #define UP_DOWN 1
 #define DOWN_UP 0
 
-void bmpdraw(File f, uint8_t x, uint8_t y, uint8_t feed) {
+void bmpdraw(File f, uint16_t x, uint16_t y, uint8_t feed) {
   // uint8_t  p, g, b;
   uint16_t i, j, color;
   //  uint8_t temp[4];
@@ -158,7 +158,8 @@ void bmpdraw(File f, uint8_t x, uint8_t y, uint8_t feed) {
   for (i = __Gnbmp_height; i > 0; i--) {
     SD_CS_OFF;
     cbi(myGLCD.P_CS, myGLCD.B_CS);
-    myGLCD.setXY(x, i - y - 1, w, i - y - 1);
+    myGLCD.setXY(x, y, w, y);
+    y--;
     sbi(myGLCD.P_CS, myGLCD.B_CS);
     buffidx = 0;
     pixcount = 0;
@@ -447,7 +448,7 @@ void setup() {
 void loop() {
   uint16_t x = 0, y = 0;
   uint8_t feed = 0;
-  for (unsigned char i = 0; i < __Gnfile_num; i++) {
+  for (uint16_t i = 0; i < __Gnfile_num; i++) {
     if(i == 1)continue;
     Serial.print("Begin show");
     Serial.print(i);
@@ -470,12 +471,10 @@ void loop() {
 
     // dirCtrl = 1-dirCtrl;
     Serial.println("Get into bmpdraw");
-    x = 0;
-    y = 0;
-    if (__Gnbmp_width < 240)
-      ;
-    x = (240 - __Gnbmp_width) / 2;
-    if (__Gnbmp_height < 320) y = (320 - __Gnbmp_height) / 2;
+    // x = 0;
+    // y = 0;
+    x = (240 - __Gnbmp_width)/2;
+    y = ((320 + __Gnbmp_height)/2) - 1;
     // if (__Gnbmp_width % 4 == 0) {
     //   feed = 0;
     // } else {
@@ -485,8 +484,14 @@ void loop() {
     feed = 4 - ((__Gnbmp_width * 24) >> 3) & 3;
     bmpdraw(bmpFile, x, y, feed);
     bmpFile.close();
-
     delay(5000);
+    if(Serial.available()){
+      int x = Serial.parseInt();
+      if(x>0 && x < __Gnfile_num){
+        i = x - 1;
+      }
+      Serial.println(i);
+    }
     myGLCD.clrScr();
   }
   delay(10000);
