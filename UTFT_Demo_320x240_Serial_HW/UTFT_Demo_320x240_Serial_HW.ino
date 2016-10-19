@@ -34,7 +34,7 @@ const int PIN_TFT_CS = 15;
 const int PIN_TFT_BL = 5;
 
 #define TFT_CS_ON digitalWrite(PIN_TFT_CS, LOW)
-#define TFT_CS_ON digitalWrite(PIN_TFT_CS, LOW)
+#define TFT_CS_OFF digitalWrite(PIN_TFT_CS, HIGH)
 UTFT myGLCD(ILI9341_S5P, PIN_TFT_CS, 5, 4);
 
 // init for sd card
