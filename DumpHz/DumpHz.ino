@@ -30,6 +30,10 @@ extern uint8_t SevenSegNumFont[];
 #define TFT_CS_OFF digitalWrite(PIN_TFT_CS, HIGH)
 UTFT myGLCD(ILI9341_S5P, PIN_TFT_CS, 5, 4);
 
+#define FHEAD 14
+#define F16L  261710
+#define F24L  760252
+
 void setup() {
   // put your setup code here, to run once:
 
@@ -51,7 +55,7 @@ void setup() {
   myGLCD.clrScr();
   myGLCD.setColor(VGA_WHITE);
   myGLCD.setBackColor(0, 0, 0xFF);
-  myGLCD.print(F("Begin Dump Font"), 24, 32);
+  myGLCD.print(F("Begin Dump Font"), 0, 32);
   myGLCD.setBackColor(0, 0, 0);
   Serial.println("END Init");
   delay(5000);
@@ -61,7 +65,7 @@ void dumpFont() {
   uint16_t x = 0, y = 0, c = 0;
   uint8_t buff[256];
   uint16_t bcolor = VGA_BLACK, fcolor[3] = {VGA_RED, VGA_GREEN, VGA_BLUE};
-  pos = 14;
+  pos = 14 ;
   while (pos < 261710) {
     //    Serial.println(pos);
     sbi(myGLCD.P_CS, myGLCD.B_CS);
@@ -93,7 +97,7 @@ void dumpFont() {
       c++;
       if (c == 300) {
         myGLCD.setColor(VGA_RED);
-        myGLCD.setBackColor(0, 0, 0xFF);
+        myGLCD.setBackColor(VGA_TRANSPARENT);
         myGLCD.print("Print:", CENTER, 250);
         myGLCD.setFont(SevenSegNumFont);
         myGLCD.printNumI(pos, CENTER, 269);
@@ -113,6 +117,8 @@ void dumpFont() {
 void loop() {
   // put your main code here, to run repeatedly:
   myGLCD.clrScr();
+  sbi(myGLCD.P_CS, myGLCD.B_CS);
+  delay(5);
   dumpFont();
   delay(3000);
 }
