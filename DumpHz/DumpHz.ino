@@ -31,8 +31,13 @@ extern uint8_t SevenSegNumFont[];
 UTFT myGLCD(ILI9341_S5P, PIN_TFT_CS, 5, 4);
 
 #define FHEAD 14
-#define F16L  261710
-#define F24L  760252
+#define F16L  ((uint16_t)((261710 + 255)/256))*256 //must 256 align
+#define F24L  F16L + 498528 + 14
+
+union {
+  uint8_t buff[256];
+  uint8_t fbuff[72][3];
+} ubuff;
 
 void setup() {
   // put your setup code here, to run once:
@@ -61,7 +66,8 @@ void setup() {
   delay(5000);
 }
 
-void dumpFont() {
+
+void dumpFont16() {
   uint16_t x = 0, y = 0, c = 0;
   uint8_t buff[256];
   uint16_t bcolor = VGA_BLACK, fcolor[3] = {VGA_RED, VGA_GREEN, VGA_BLUE};
@@ -113,12 +119,74 @@ void dumpFont() {
 }
 
 
+void dumpFont24() {
+  uint16_t x = 0, y = 0, c = 0;
+  uint8_t buff[256];//256 for 16;216 for 24 px
+  uint16_t bcolor = VGA_BLACK, fcolor[3] = {VGA_RED, VGA_GREEN, VGA_BLUE};
+  pos = 14 + F16L;
+  Serial.println(pos);
+  while (pos < F24L) {
+    //    Serial.println(pos);
+    sbi(myGLCD.P_CS, myGLCD.B_CS);
+    delay(5);
+    FLASH_CS_ON;
+    delay(5);
+    if (!flash.readByteArray(pos, ubuff.buff, 216)) {//256 for 16;216 for 24 px
+      Serial.println(F("Read Flash Error"));
+    }
+    //    for(uint8_t m=0;m<32;m++){
+    //      Serial.print(buff[m],HEX);
+    //    }
+    //    Serial.print("    |");
+    //    Serial.println(c);
+    pos += 216;//256 for 16;216 for 24 px
+    delay(40);
+    FLASH_CS_OFF;
+    //    cbi(myGLCD.P_CS, myGLCD.B_CS);
+    //    myGLCD.setXY((c%15)*16,(c/15)*16,15,15);
+    for (uint16_t m = 0; m < 3; m++) {// 8 for 16; 3 for 24
+      for (uint16_t i = 0; i < 24; i++) {//16 or 24
+        for (uint16_t j = 0; j < 24; j++) {
+          // 16 * 16
+          // if (((0x80 >> j % 8) & ubuff.buff[m * 32 + i * 2 + (j >> 3)]) != 0) {
+          //   myGLCD.drawPixel((c % 15) * 16 + j, (c / 15) * 16 + i);
+          // 24 * 24
+          if (((0x80 >> i % 8) & ubuff.fbuff[m * 24 + j][i/8]) != 0) {
+            myGLCD.drawPixel((c % 10) * 24 + j, (c / 10) * 24 + i);//10 char per line
+          }
+        }
+      }
+      //draw font pix
+      c++;
+      if (c == 130) { //300 for 16, 130 for 24
+        myGLCD.setColor(VGA_RED);
+        myGLCD.setBackColor(VGA_TRANSPARENT);
+        myGLCD.print("Print:", CENTER, 250);
+        myGLCD.setFont(SevenSegNumFont);
+        myGLCD.printNumI(pos, CENTER, 269);
+        myGLCD.setColor(VGA_WHITE);
+        myGLCD.setBackColor(0, 0, 0);
+        myGLCD.setFont(BigFont);
+        c = 0;
+        delay(5000);
+        myGLCD.clrScr();
+      }
+    }
+  }
+}
+
+
 
 void loop() {
   // put your main code here, to run repeatedly:
+  // myGLCD.clrScr();
+  // sbi(myGLCD.P_CS, myGLCD.B_CS);
+  // delay(5);
+  // dumpFont16();
+  // delay(3000);
   myGLCD.clrScr();
   sbi(myGLCD.P_CS, myGLCD.B_CS);
   delay(5);
-  dumpFont();
+  dumpFont24();
   delay(3000);
 }
