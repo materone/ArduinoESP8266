@@ -41,9 +41,11 @@ union {
 
 void setup() {
   // put your setup code here, to run once:
-
   Serial.begin(115200);
   delay(100);
+  Serial.println(F("Last Err reson"));
+  Serial.println(ESP.getResetReason());
+
   Serial.println(F("Begin Flash Font Dump"));
 
   pinMode(PIN_FLASH_CS, OUTPUT);
@@ -151,7 +153,7 @@ void dumpFont24() {
           // if (((0x80 >> j % 8) & ubuff.buff[m * 32 + i * 2 + (j >> 3)]) != 0) {
           //   myGLCD.drawPixel((c % 15) * 16 + j, (c / 15) * 16 + i);
           // 24 * 24
-          if (((0x80 >> i % 8) & ubuff.fbuff[m * 24 + j][i/8]) != 0) {
+          if (((0x80 >> i % 8) & ubuff.fbuff[m * 24 + j][i / 8]) != 0) {
             myGLCD.drawPixel((c % 10) * 24 + j, (c / 10) * 24 + i);//10 char per line
           }
         }
@@ -170,6 +172,8 @@ void dumpFont24() {
         c = 0;
         delay(5000);
         myGLCD.clrScr();
+        Serial.print(F("Heap Size:"));
+        Serial.println(ESP.getFreeHeap());
       }
     }
   }
@@ -187,6 +191,8 @@ void loop() {
   myGLCD.clrScr();
   sbi(myGLCD.P_CS, myGLCD.B_CS);
   delay(5);
+  Serial.print(F("Heap Size:"));
+  Serial.println(ESP.getFreeHeap());
   dumpFont24();
   delay(3000);
 }
