@@ -31,12 +31,14 @@ extern uint8_t SevenSegNumFont[];
 UTFT myGLCD(ILI9341_S5P, PIN_TFT_CS, 5, 4);
 
 #define FHEAD 14
-#define F16L  ((uint16_t)((261710 + 255)/256))*256 //must 256 align
-#define F24L  F16L + 498528 + 14
+#define F16L  ((uint16_t)((261710 + 255)/256))*256 //must 256 align: 261888
+#define F24L  F16L + 498528 + 14 //760430
 
 union {
-  uint8_t buff[256];
-  uint8_t fbuff[72][3];
+  // uint8_t buff[256];//16
+  // uint8_t fbuff[72][3];//16
+  uint8_t buff[9360];//24
+  uint8_t fbuff[3120][3];//24
 } ubuff;
 
 void setup() {
@@ -123,30 +125,36 @@ void dumpFont16() {
 
 void dumpFont24() {
   uint16_t x = 0, y = 0, c = 0;
-  uint8_t buff[256];//256 for 16;216 for 24 px
+  // uint8_t buff[256];//256 for 16;216 for 24 px
   uint16_t bcolor = VGA_BLACK, fcolor[3] = {VGA_RED, VGA_GREEN, VGA_BLUE};
   pos = 14 + F16L;
   Serial.println(pos);
+  unsigned long start = millis();
   while (pos < F24L) {
     //    Serial.println(pos);
+    Serial.println(F("11111"));
     sbi(myGLCD.P_CS, myGLCD.B_CS);
     delay(5);
     FLASH_CS_ON;
     delay(5);
-    if (!flash.readByteArray(pos, ubuff.buff, 216)) {//256 for 16;216 for 24 px
+    Serial.println(F("Begint read flash"));
+    start = millis();
+    if (!flash.readByteArray(pos, ubuff.buff, 9360)) {//256 for 16;216 for 24 px
       Serial.println(F("Read Flash Error"));
     }
+    Serial.println(millis() - start);
+    Serial.println(F("End read flash"));
     //    for(uint8_t m=0;m<32;m++){
     //      Serial.print(buff[m],HEX);
     //    }
     //    Serial.print("    |");
     //    Serial.println(c);
-    pos += 216;//256 for 16;216 for 24 px
+    pos += 9360;//256 for 16;216 for 24 px
     delay(40);
     FLASH_CS_OFF;
     //    cbi(myGLCD.P_CS, myGLCD.B_CS);
     //    myGLCD.setXY((c%15)*16,(c/15)*16,15,15);
-    for (uint16_t m = 0; m < 3; m++) {// 8 for 16; 3 for 24
+    for (uint16_t m = 0; m < 130; m++) {// 8 for 16; 3 for 24
       for (uint16_t i = 0; i < 24; i++) {//16 or 24
         for (uint16_t j = 0; j < 24; j++) {
           // 16 * 16
@@ -155,26 +163,37 @@ void dumpFont24() {
           // 24 * 24
           if (((0x80 >> i % 8) & ubuff.fbuff[m * 24 + j][i / 8]) != 0) {
             myGLCD.drawPixel((c % 10) * 24 + j, (c / 10) * 24 + i);//10 char per line
+
           }
         }
       }
       //draw font pix
       c++;
+      // Serial.print(F("2222\t"));
+      // Serial.println(c);
       if (c == 130) { //300 for 16, 130 for 24
+        Serial.println(F("3333"));
         myGLCD.setColor(VGA_RED);
         myGLCD.setBackColor(VGA_TRANSPARENT);
-        myGLCD.print("Print:", CENTER, 250);
+        myGLCD.print("Print:", CENTER, 230);
+        // myGLCD.printNumI((millis() - start), CENTER, 250);
+        // start = millis();
         myGLCD.setFont(SevenSegNumFont);
         myGLCD.printNumI(pos, CENTER, 269);
         myGLCD.setColor(VGA_WHITE);
         myGLCD.setBackColor(0, 0, 0);
         myGLCD.setFont(BigFont);
         c = 0;
-        delay(5000);
+        delay(500);
         myGLCD.clrScr();
+        delay(5);
         Serial.print(F("Heap Size:"));
-        Serial.println(ESP.getFreeHeap());
+        Serial.print(ESP.getFreeHeap());
+        Serial.print(F("\tNext Pos:"));
+        Serial.println(pos);
+        Serial.println(F("4444"));
       }
+      delay(5);
     }
   }
 }
@@ -189,7 +208,7 @@ void loop() {
   // dumpFont16();
   // delay(3000);
   myGLCD.clrScr();
-  sbi(myGLCD.P_CS, myGLCD.B_CS);
+  // sbi(myGLCD.P_CS, myGLCD.B_CS);
   delay(5);
   Serial.print(F("Heap Size:"));
   Serial.println(ESP.getFreeHeap());

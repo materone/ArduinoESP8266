@@ -695,7 +695,10 @@ void UTFT::fillCircle(int x, int y, int radius)
 void UTFT::clrScr()
 {
 	long i;
-	
+	//add by tony
+	uint8_t data[64];
+	bzero(data,64);
+
 	cbi(P_CS, B_CS);
 	clrXY();
 	if (display_transfer_mode!=1)
@@ -706,16 +709,19 @@ void UTFT::clrScr()
 		_fast_fill_8(0,((disp_x_size+1)*(disp_y_size+1)));
 	else
 	{
-		for (i=0; i<((disp_x_size+1)*(disp_y_size+1)); i++)
-		{
-			if (display_transfer_mode!=1)
-				LCD_Writ_Bus(0,0,display_transfer_mode);
-			else
-			{
-				LCD_Writ_Bus(1,0,display_transfer_mode);
-				LCD_Writ_Bus(1,0,display_transfer_mode);
-			}
-		}
+		// for (i=0; i<((disp_x_size+1)*(disp_y_size+1)); i++)
+		// {
+		// 	if (display_transfer_mode!=1)
+		// 		LCD_Writ_Bus(0,0,display_transfer_mode);
+		// 	else
+		// 	{
+		// 		LCD_Writ_Bus(1,0,display_transfer_mode);
+		// 		LCD_Writ_Bus(1,0,display_transfer_mode);
+		// 	}
+		// }
+		//modify by tony for quick and bug fix
+		sbi ( P_RS, B_RS );
+		SPI.writePattern(data,64,((disp_x_size+1)*(disp_y_size+1))/32);
 	}
 	sbi(P_CS, B_CS);
 }
