@@ -23,7 +23,6 @@
 
 // Declare which fonts we will be using
 extern uint8_t SmallFont[];
-extern unsigned short esp12_resize[];
 
 // Modify the line below to match your display and wiring:
 // HSPI 4口 12，13，14，15(CS)
@@ -766,10 +765,10 @@ void loop1() {
 
   delay(2000);
 
-  myGLCD.setColor(0, 0, 0);
-  myGLCD.drawBitmap(0, 0, 320, 240, esp12_resize, 1);
+  // myGLCD.setColor(0, 0, 0);
+  // myGLCD.drawBitmap(0, 0, 320, 240, esp12_resize, 1);
 
-  delay(2000);
+  // delay(2000);
 
   myGLCD.fillScr(0, 0, 255);
   myGLCD.setColor(255, 0, 0);
