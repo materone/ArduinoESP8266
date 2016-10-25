@@ -16,7 +16,7 @@ SPIFlash flash(PIN_FLASH_CS);
 uint32_t pos = 0;
 
 // Modify the line below to match your display and wiring:
-// HSPI 4口 12，13，14，15(CS)
+// HSPI 4pin 12,13,14,15(CS)
 // DC/RS 4
 // RST  5
 // LED(Back Light) PullUp (0 or V3.3)
@@ -121,6 +121,68 @@ void dumpFont16() {
         delay(5000);
         myGLCD.clrScr();
       }
+    }
+  }
+}
+
+
+void dumpFont16Quick() {
+  uint16_t x = 0, y = 0, c = 0;
+  uint8_t buff[256];
+  uint16_t bcolor = VGA_BLACK, fcolor[3] = {VGA_RED, VGA_GREEN, VGA_BLUE};
+  pos = 14 ;
+  unsigned long start = millis();
+  while (pos < 261710) {
+    //    Serial.println(pos);
+    sbi(myGLCD.P_CS, myGLCD.B_CS);
+    delay(5);
+    FLASH_CS_ON;
+    delay(5);
+    if (!flash.readByteArray(pos, buff, 256)) {
+      Serial.println(F("Read Flash Error"));
+    }
+    //    for(uint8_t m=0;m<32;m++){
+    //      Serial.print(buff[m],HEX);
+    //    }
+    //    Serial.print("    |");
+    //    Serial.println(c);
+    pos += 256;
+    delay(40);
+    FLASH_CS_OFF;
+    cbi(myGLCD.P_CS, myGLCD.B_CS);
+    //    myGLCD.setXY((c%15)*16,(c/15)*16,15,15);
+    for (uint16_t m = 0; m < 8; m++) {
+      uint16_t m0 = m * 32;
+      uint16_t x1 = (c % 15) * 16;
+      uint16_t y0 =  (c / 15) * 16;
+      for (uint16_t i = 0; i < 16; i++) {
+        uint16_t y1 = y0 + i;
+        uint16_t m1 = m0 + i * 2;
+        for (uint16_t j = 0; j < 16; j++) {
+          if (((0x80 >> j % 8) & buff[m1 + (j >> 3)]) != 0) {
+            myGLCD.drawPixel(x1 + j,y1);
+          }
+        }
+      }
+      //draw font pix
+      c++;
+      if (c == 300) {
+        myGLCD.setColor(VGA_RED);
+        myGLCD.setBackColor(VGA_BLUE);
+        myGLCD.print("Print:", CENTER, 230);
+        myGLCD.printNumI((millis() - start), CENTER, 250);
+        start = millis();
+        myGLCD.setFont(SevenSegNumFont);
+        myGLCD.printNumI(pos, CENTER, 269);
+        myGLCD.setColor(VGA_WHITE);
+        myGLCD.setBackColor(0, 0, 0);
+        myGLCD.setFont(BigFont);
+        c = 0;
+        delay(500);
+        myGLCD.clrScr();
+        delay(5);
+      }
+      delay(5);
     }
   }
 }
@@ -252,3 +314,4 @@ void loop() {
   dumpFont24();
   delay(3000);
 }
+
