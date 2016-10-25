@@ -184,6 +184,8 @@ void dumpFont24() {
           // if (((0x80 >> j % 8) & ubuff.buff[m * 32 + i * 2 + (j >> 3)]) != 0) {
           //   myGLCD.drawPixel((c % 15) * 16 + j, (c / 15) * 16 + i);
           // 24 * 24
+          // if ((i1 & ubuff.fbuff[m * 24 + j][i2]) != 0) {
+          //   myGLCD.drawPixel((c % 10) * 24 + j, (c / 10) * 24 + i);
           uint16_t b3 = b2 + j * 2;
           if ((i1 & ubuff.fbuff[mChars + j][i2]) != 0) {
             // myGLCD.drawPixel(linePointX + j, ml);//10 char per line
