@@ -721,7 +721,9 @@ void UTFT::clrScr()
 		// }
 		//modify by tony for quick and bug fix
 		sbi ( P_RS, B_RS );
+		delay(2);
 		SPI.writePattern(data,64,((disp_x_size+1)*(disp_y_size+1))/32);
+		delay(2);
 	}
 	sbi(P_CS, B_CS);
 }
